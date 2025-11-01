@@ -29,6 +29,10 @@
 -dontwarn org.apache.commons.**
 -dontwarn org.openxmlformats.**
 -dontwarn org.apache.logging.log4j.**
+-dontwarn java.awt.**
+-dontwarn javax.swing.**
+-dontwarn com.graphbuilder.**
+-dontwarn org.slf4j.**
 -keep class org.apache.poi.** { *; }
 -keep class org.apache.xmlbeans.** { *; }
 -keep class org.openxmlformats.** { *; }

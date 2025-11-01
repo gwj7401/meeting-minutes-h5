@@ -27,10 +27,10 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false  // 暂时禁用混淆，避免 POI 库的问题
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            
+
             // 版本信息
             buildConfigField "String", "BUILD_TIME", "\"${getBuildTime()}\""
             buildConfigField "String", "GIT_COMMIT", "\"${getGitCommit()}\""
