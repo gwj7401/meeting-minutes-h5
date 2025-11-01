@@ -32,7 +32,23 @@ keytool -genkey -v -keystore meeting-minutes.jks -keyalg RSA -keysize 2048 -vali
 正确吗? 输入：是 或 y
 密钥口令: 直接回车（使用与密钥库相同的密码）
 ```
-
+输入密钥库口令:  cg167401
+再次输入新口令: 
+您的名字与姓氏是什么?
+  [Unknown]:  guoweijiang
+您的组织单位名称是什么?
+  [Unknown]:  宁夏特检
+您的组织名称是什么?
+  [Unknown]:  宁夏特检
+您所在的城市或区域名称是什么?
+  [Unknown]:  银川市
+您所在的省/市/自治区名称是什么?
+  [Unknown]:  宁夏
+该单位的双字母国家/地区代码是什么?
+  [Unknown]:  CN
+CN=guoweijiang, OU=宁夏特检, O=宁夏特检, L=银川市, ST=宁夏, C=CN是否正
+确?
+  [否]:  y
 **完成后会生成 `meeting-minutes.jks` 文件。**
 
 #### 步骤 2：转换为 Base64
