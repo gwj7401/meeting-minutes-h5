@@ -92,34 +92,12 @@ dependencies {
     // 权限请求
     implementation 'com.guolindev.permissionx:permissionx:1.7.1'
 
-    // 文件选择器
-    implementation 'com.github.dhaval2404:imagepicker:2.1'
-
     // PDF 生成
     implementation 'com.itextpdf:itext7-core:7.2.5'
 
     // Word 文档生成
     implementation 'org.apache.poi:poi:5.2.5'
     implementation 'org.apache.poi:poi-ooxml:5.2.5'
-
-    // Markdown 解析
-    implementation 'io.noties.markwon:core:4.6.2'
-
-    // 讯飞语音识别 SDK (需要去官网下载)
-    // implementation files('libs/Msc.jar')
-
-    // 阿里云语音识别
-    implementation 'com.aliyun:aliyun-java-sdk-core:4.6.4'
-    implementation 'com.alibaba.nls:nls-sdk-transcriber:2.2.1'
-
-    // 腾讯云语音识别
-    implementation 'com.tencentcloudapi:tencentcloud-sdk-java:3.1.900'
-
-    // EventBus
-    implementation 'org.greenrobot:eventbus:3.3.1'
-
-    // Glide 图片加载
-    implementation 'com.github.bumptech.glide:glide:4.16.0'
 
     // 测试
     testImplementation 'junit:junit:4.13.2'
