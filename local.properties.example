@@ -1,0 +1,51 @@
+## This file must *NOT* be checked into Version Control Systems,
+# as it contains information specific to your local configuration.
+#
+# Location of the Android SDK. This is usually set automatically by Android Studio.
+sdk.dir=/path/to/Android/sdk
+
+## 语音识别 API 配置
+# 阿里云语音识别
+# 申请地址：https://nls.console.aliyun.com/
+ali.speech.appkey=your_aliyun_app_key
+ali.speech.token=your_aliyun_token
+
+# 腾讯云语音识别
+# 申请地址：https://console.cloud.tencent.com/asr
+tencent.speech.appid=your_tencent_app_id
+tencent.speech.secretid=your_tencent_secret_id
+tencent.speech.secretkey=your_tencent_secret_key
+
+# 讯飞语音识别
+# 申请地址：https://www.xfyun.cn/
+xfyun.speech.appid=your_xfyun_app_id
+xfyun.speech.apikey=your_xfyun_api_key
+xfyun.speech.apisecret=your_xfyun_api_secret
+
+## AI 模型 API 配置
+# OpenAI
+# 申请地址：https://platform.openai.com/
+openai.api.key=your_openai_api_key
+openai.api.url=https://api.openai.com/v1/chat/completions
+
+# 通义千问
+# 申请地址：https://dashscope.aliyun.com/
+qianwen.api.key=your_qianwen_api_key
+
+# 文心一言
+# 申请地址：https://cloud.baidu.com/product/wenxinworkshop
+ernie.api.key=your_ernie_api_key
+ernie.secret.key=your_ernie_secret_key
+
+## 版本更新服务器配置
+# 更新检查 URL
+update.check.url=https://your-server.com/api/version/check
+
+## 第三方部署配置（可选）
+# 蒲公英
+pgyer.api.key=your_pgyer_api_key
+pgyer.password=your_install_password
+
+# fir.im
+fir.api.token=your_fir_api_token
+

@@ -1,0 +1,163 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
+
+android {
+    namespace 'com.meetingminutes.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.meetingminutes.app"
+        minSdk 24
+        targetSdk 34
+        versionCode getVersionCodeFromGit()
+        versionName getVersionNameFromGit()
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        
+        // 多语言支持
+        resConfigs "zh", "en"
+        
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            // 版本信息
+            buildConfigField "String", "BUILD_TIME", "\"${getBuildTime()}\""
+            buildConfigField "String", "GIT_COMMIT", "\"${getGitCommit()}\""
+        }
+        debug {
+            minifyEnabled false
+            buildConfigField "String", "BUILD_TIME", "\"${getBuildTime()}\""
+            buildConfigField "String", "GIT_COMMIT", "\"${getGitCommit()}\""
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 
+                        'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+        }
+    }
+}
+
+dependencies {
+    // AndroidX 核心库
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+    implementation 'androidx.activity:activity-ktx:1.8.2'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
+
+    // 协程
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+
+    // Room 数据库
+    implementation 'androidx.room:room-runtime:2.6.1'
+    implementation 'androidx.room:room-ktx:2.6.1'
+    kapt 'androidx.room:room-compiler:2.6.1'
+
+    // 网络请求
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // 权限请求
+    implementation 'com.guolindev.permissionx:permissionx:1.7.1'
+
+    // 文件选择器
+    implementation 'com.github.dhaval2404:imagepicker:2.1'
+
+    // PDF 生成
+    implementation 'com.itextpdf:itext7-core:7.2.5'
+
+    // Word 文档生成
+    implementation 'org.apache.poi:poi:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+
+    // Markdown 解析
+    implementation 'io.noties.markwon:core:4.6.2'
+
+    // 讯飞语音识别 SDK (需要去官网下载)
+    // implementation files('libs/Msc.jar')
+
+    // 阿里云语音识别
+    implementation 'com.aliyun:aliyun-java-sdk-core:4.6.4'
+    implementation 'com.alibaba.nls:nls-sdk-transcriber:2.2.1'
+
+    // 腾讯云语音识别
+    implementation 'com.tencentcloudapi:tencentcloud-sdk-java:3.1.900'
+
+    // EventBus
+    implementation 'org.greenrobot:eventbus:3.3.1'
+
+    // Glide 图片加载
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+
+    // 测试
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
+
+// 从 Git 获取版本号
+def getVersionCodeFromGit() {
+    try {
+        def commitCount = 'git rev-list --count HEAD'.execute().text.trim()
+        return commitCount.toInteger()
+    } catch (Exception e) {
+        return 1
+    }
+}
+
+def getVersionNameFromGit() {
+    try {
+        def tag = 'git describe --tags --abbrev=0'.execute().text.trim()
+        if (tag) {
+            return tag
+        }
+    } catch (Exception e) {
+        // ignore
+    }
+    return "1.0.0"
+}
+
+def getBuildTime() {
+    return new Date().format("yyyy-MM-dd HH:mm:ss")
+}
+
+def getGitCommit() {
+    try {
+        return 'git rev-parse --short HEAD'.execute().text.trim()
+    } catch (Exception e) {
+        return "unknown"
+    }
+}
+
