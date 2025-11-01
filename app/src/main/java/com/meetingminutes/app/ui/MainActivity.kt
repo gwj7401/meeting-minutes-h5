@@ -182,16 +182,22 @@ class MainActivity : AppCompatActivity() {
     }
     
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
-                true
+        return try {
+            when (item.itemId) {
+                R.id.action_settings -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                    true
+                }
+                R.id.action_about -> {
+                    showAboutDialog()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
             }
-            R.id.action_about -> {
-                showAboutDialog()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "操作失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            false
         }
     }
     
