@@ -58,10 +58,16 @@ object DialectType {
     const val XIAN = "xian"                   // 西安话
     const val ZHENGZHOU = "zhengzhou"         // 郑州话
     const val NANJING = "nanjing"             // 南京话
+    const val NINGXIA = "ningxia"             // 宁夏话 ⭐ 新增
+    const val NORTHWEST = "northwest"         // 西北话
+    const val GANSU = "gansu"                 // 甘肃话
+    const val QINGHAI = "qinghai"             // 青海话
+    const val SHAANXI = "shaanxi"             // 陕西话
     
     fun getAllDialects(): List<Pair<String, String>> {
         return listOf(
             MANDARIN to "普通话",
+            NINGXIA to "宁夏话 ⭐",  // 宁夏话放在前面，方便选择
             CANTONESE to "粤语",
             SICHUANESE to "四川话",
             SHANGHAINESE to "上海话",
@@ -72,7 +78,11 @@ object DialectType {
             WUHAN to "武汉话",
             XIAN to "西安话",
             ZHENGZHOU to "郑州话",
-            NANJING to "南京话"
+            NANJING to "南京话",
+            NORTHWEST to "西北话",
+            GANSU to "甘肃话",
+            QINGHAI to "青海话",
+            SHAANXI to "陕西话"
         )
     }
 }
