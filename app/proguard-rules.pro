@@ -25,9 +25,23 @@
 
 # Keep POI
 -dontwarn org.apache.poi.**
+-dontwarn org.apache.xmlbeans.**
+-dontwarn org.apache.commons.**
+-dontwarn org.openxmlformats.**
+-dontwarn org.apache.logging.log4j.**
 -keep class org.apache.poi.** { *; }
+-keep class org.apache.xmlbeans.** { *; }
+-keep class org.openxmlformats.** { *; }
+-keep class org.apache.commons.** { *; }
 
 # Keep iText
 -dontwarn com.itextpdf.**
 -keep class com.itextpdf.** { *; }
+
+# Kotlin Coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
 

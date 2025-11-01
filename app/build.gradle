@@ -10,16 +10,16 @@ android {
 
     defaultConfig {
         applicationId "com.meetingminutes.app"
-        minSdk 24
+        minSdk 26  // 提高到 26 以支持 Apache POI
         targetSdk 34
         versionCode getVersionCodeFromGit()
         versionName getVersionNameFromGit()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        
+
         // 多语言支持
         resConfigs "zh", "en"
-        
+
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         }
