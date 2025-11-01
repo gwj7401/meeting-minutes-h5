@@ -31,16 +31,22 @@ class MainActivity : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        
-        setSupportActionBar(binding.toolbar)
-        
-        setupRecyclerView()
-        setupFab()
-        requestPermissions()
-        loadRecords()
-        checkUpdate()
+
+        try {
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
+
+            setSupportActionBar(binding.toolbar)
+
+            setupRecyclerView()
+            setupFab()
+            requestPermissions()
+            loadRecords()
+            // checkUpdate()  // 暂时注释掉，避免网络问题
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "初始化失败: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
     
     private fun setupRecyclerView() {
