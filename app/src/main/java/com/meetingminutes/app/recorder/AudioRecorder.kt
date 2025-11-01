@@ -185,27 +185,45 @@ class AudioRecorder {
             
             // RIFF header
             randomAccessFile.writeBytes("RIFF")
-            randomAccessFile.writeInt(Integer.reverseBytes(totalAudioLen.toInt()))
+            writeIntLittleEndian(randomAccessFile, totalAudioLen.toInt())
             randomAccessFile.writeBytes("WAVE")
-            
+
             // fmt chunk
             randomAccessFile.writeBytes("fmt ")
-            randomAccessFile.writeInt(Integer.reverseBytes(16)) // chunk size
-            randomAccessFile.writeShort(Short.reverseBytes(1).toInt()) // audio format (PCM)
-            randomAccessFile.writeShort(Short.reverseBytes(channels.toShort()).toInt())
-            randomAccessFile.writeInt(Integer.reverseBytes(sampleRate))
-            randomAccessFile.writeInt(Integer.reverseBytes(byteRate))
-            randomAccessFile.writeShort(Short.reverseBytes((channels * 2).toShort()).toInt())
-            randomAccessFile.writeShort(Short.reverseBytes(16).toInt()) // bits per sample
-            
+            writeIntLittleEndian(randomAccessFile, 16) // chunk size
+            writeShortLittleEndian(randomAccessFile, 1) // audio format (PCM)
+            writeShortLittleEndian(randomAccessFile, channels.toShort())
+            writeIntLittleEndian(randomAccessFile, sampleRate)
+            writeIntLittleEndian(randomAccessFile, byteRate)
+            writeShortLittleEndian(randomAccessFile, (channels * 2).toShort())
+            writeShortLittleEndian(randomAccessFile, 16) // bits per sample
+
             // data chunk
             randomAccessFile.writeBytes("data")
-            randomAccessFile.writeInt(Integer.reverseBytes(totalDataLen.toInt()))
+            writeIntLittleEndian(randomAccessFile, totalDataLen.toInt())
             
             randomAccessFile.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    /**
+     * 写入小端序 Int
+     */
+    private fun writeIntLittleEndian(file: RandomAccessFile, value: Int) {
+        file.writeByte(value and 0xFF)
+        file.writeByte((value shr 8) and 0xFF)
+        file.writeByte((value shr 16) and 0xFF)
+        file.writeByte((value shr 24) and 0xFF)
+    }
+
+    /**
+     * 写入小端序 Short
+     */
+    private fun writeShortLittleEndian(file: RandomAccessFile, value: Short) {
+        file.writeByte(value.toInt() and 0xFF)
+        file.writeByte((value.toInt() shr 8) and 0xFF)
     }
 }
 

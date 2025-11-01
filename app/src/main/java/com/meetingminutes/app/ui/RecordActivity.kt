@@ -197,15 +197,17 @@ class RecordActivity : AppCompatActivity() {
     }
     
     private fun saveRecord() {
+        // 创建输入框
+        val editText = android.widget.EditText(this)
+        editText.hint = "请输入会议标题"
+        editText.setPadding(50, 30, 50, 30)
+
         MaterialAlertDialogBuilder(this)
             .setTitle("保存录音")
-            .setMessage("请输入会议标题")
-            .setView(R.layout.dialog_input_title)
-            .setPositiveButton("保存") { dialog, _ ->
-                val editText = (dialog as androidx.appcompat.app.AlertDialog)
-                    .findViewById<android.widget.EditText>(R.id.etTitle)
-                val title = editText?.text?.toString() ?: "未命名会议"
-                
+            .setView(editText)
+            .setPositiveButton("保存") { _, _ ->
+                val title = editText.text.toString().ifEmpty { "未命名会议" }
+
                 lifecycleScope.launch {
                     val record = MeetingRecord(
                         title = title,
@@ -215,9 +217,9 @@ class RecordActivity : AppCompatActivity() {
                         status = 1,
                         dialect = selectedDialect
                     )
-                    
+
                     database.meetingRecordDao().insert(record)
-                    
+
                     Toast.makeText(this@RecordActivity, "已保存", Toast.LENGTH_SHORT).show()
                     finish()
                 }
