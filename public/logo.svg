@@ -1,0 +1,124 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 渐变背景 -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="micGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd89b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff6b9d;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:0.8" />
+    </linearGradient>
+    
+    <!-- 阴影 -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+      <feOffset dx="0" dy="4" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 圆角矩形背景 -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGradient)"/>
+  
+  <!-- 装饰圆圈 -->
+  <circle cx="100" cy="100" r="60" fill="white" opacity="0.1"/>
+  <circle cx="420" cy="400" r="80" fill="white" opacity="0.1"/>
+  <circle cx="450" cy="120" r="40" fill="white" opacity="0.15"/>
+  
+  <!-- 声波效果 -->
+  <g opacity="0.6">
+    <!-- 第一条波浪 -->
+    <path d="M 80 256 Q 130 220, 180 256 T 280 256 T 380 256 T 480 256" 
+          stroke="url(#waveGradient)" 
+          stroke-width="4" 
+          fill="none" 
+          stroke-linecap="round"/>
+    
+    <!-- 第二条波浪 -->
+    <path d="M 80 280 Q 130 310, 180 280 T 280 280 T 380 280 T 480 280" 
+          stroke="url(#waveGradient)" 
+          stroke-width="4" 
+          fill="none" 
+          stroke-linecap="round"/>
+    
+    <!-- 第三条波浪 -->
+    <path d="M 80 304 Q 130 280, 180 304 T 280 304 T 380 304 T 480 304" 
+          stroke="url(#waveGradient)" 
+          stroke-width="4" 
+          fill="none" 
+          stroke-linecap="round"/>
+  </g>
+  
+  <!-- 麦克风图标 -->
+  <g filter="url(#shadow)">
+    <!-- 麦克风主体 -->
+    <rect x="226" y="140" width="60" height="100" rx="30" fill="url(#micGradient)"/>
+    
+    <!-- 麦克风底座 -->
+    <path d="M 256 240 Q 200 260, 200 300 L 200 310 L 312 310 L 312 300 Q 312 260, 256 240 Z" 
+          fill="url(#micGradient)"/>
+    
+    <!-- 麦克风支架 -->
+    <rect x="246" y="310" width="20" height="40" rx="10" fill="url(#micGradient)"/>
+    
+    <!-- 麦克风底部 -->
+    <ellipse cx="256" cy="350" rx="40" ry="12" fill="url(#micGradient)"/>
+    
+    <!-- 麦克风网格 -->
+    <g opacity="0.3">
+      <line x1="236" y1="160" x2="276" y2="160" stroke="white" stroke-width="2"/>
+      <line x1="236" y1="180" x2="276" y2="180" stroke="white" stroke-width="2"/>
+      <line x1="236" y1="200" x2="276" y2="200" stroke="white" stroke-width="2"/>
+      <line x1="236" y1="220" x2="276" y2="220" stroke="white" stroke-width="2"/>
+    </g>
+    
+    <!-- 高光 -->
+    <ellipse cx="240" cy="170" rx="12" ry="20" fill="white" opacity="0.4"/>
+  </g>
+  
+  <!-- 文字图标 -->
+  <g filter="url(#shadow)">
+    <!-- 文档背景 -->
+    <rect x="300" y="160" width="120" height="140" rx="12" fill="white" opacity="0.95"/>
+    
+    <!-- 文档折角 -->
+    <path d="M 420 160 L 420 185 L 395 160 Z" fill="#e0e0e0" opacity="0.95"/>
+    
+    <!-- 文字线条 -->
+    <line x1="320" y1="200" x2="400" y2="200" stroke="#667eea" stroke-width="4" stroke-linecap="round"/>
+    <line x1="320" y1="220" x2="390" y2="220" stroke="#764ba2" stroke-width="4" stroke-linecap="round"/>
+    <line x1="320" y1="240" x2="400" y2="240" stroke="#667eea" stroke-width="4" stroke-linecap="round"/>
+    <line x1="320" y1="260" x2="380" y2="260" stroke="#764ba2" stroke-width="4" stroke-linecap="round"/>
+    <line x1="320" y1="280" x2="400" y2="280" stroke="#667eea" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  
+  <!-- 装饰星星 -->
+  <g fill="#ffd700" opacity="0.8">
+    <circle cx="150" cy="180" r="4"/>
+    <circle cx="380" cy="120" r="5"/>
+    <circle cx="140" cy="350" r="4"/>
+    <circle cx="430" cy="340" r="5"/>
+  </g>
+  
+  <!-- 闪光效果 -->
+  <g fill="white" opacity="0.6">
+    <polygon points="170,200 175,210 180,200 175,190"/>
+    <polygon points="350,140 353,147 356,140 353,133"/>
+    <polygon points="420,280 424,289 428,280 424,271"/>
+  </g>
+</svg>
+

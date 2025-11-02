@@ -1,0 +1,36 @@
+{
+  "name": "meeting-minutes-h5",
+  "version": "1.0.0",
+  "description": "会议纪要 - 免费实时语音转文字 H5 应用",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "android:init": "cap add android",
+    "android:sync": "cap sync android",
+    "android:open": "cap open android",
+    "android:build": "cd android && ./gradlew assembleRelease"
+  },
+  "dependencies": {
+    "@vueuse/core": "^10.9.0",
+    "localforage": "^1.10.0",
+    "pinia": "^2.1.7",
+    "vant": "^4.8.11",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/tsconfig": "^0.5.1",
+    "typescript": "~5.4.0",
+    "unplugin-auto-import": "^0.17.5",
+    "unplugin-vue-components": "^0.26.0",
+    "vite": "^5.2.0",
+    "vue-tsc": "^2.0.6"
+  }
+}
+

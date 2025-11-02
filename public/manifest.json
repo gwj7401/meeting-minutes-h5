@@ -1,0 +1,48 @@
+{
+  "name": "会议纪要 - 免费实时语音转文字应用",
+  "short_name": "会议纪要",
+  "description": "免费实时语音转文字应用，支持多种方言，自动记录会议内容，导出为多种格式",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities",
+    "business"
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "开始录音",
+      "short_name": "录音",
+      "description": "快速开始会议录音",
+      "url": "/record",
+      "icons": [
+        {
+          "src": "/logo.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "author": {
+    "name": "多线程吉他",
+    "url": "https://github.com/gwj7401/meeting-minutes-h5"
+  }
+}
+
