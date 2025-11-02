@@ -3,29 +3,17 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- 背景圆形 -->
-    <path
-        android:fillColor="#667eea"
-        android:pathData="M0,0h108v108h-108z"/>
-
-    <!-- 麦克风图标 -->
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M44,35 L44,50 A10,10 0 0,0 64,50 L64,35 A10,10 0 0,0 44,35 Z"/>
-
-    <!-- 麦克风底座 -->
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M38,55 Q38,68 54,68 Q70,68 70,55 L66,55 Q66,64 54,64 Q42,64 42,55 Z"/>
-
-    <!-- 麦克风支架 -->
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M52,68 L52,75 L56,75 L56,68 Z"/>
-
-    <!-- 麦克风底部 -->
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M48,75 L48,78 L60,78 L60,75 Z"/>
+
 
