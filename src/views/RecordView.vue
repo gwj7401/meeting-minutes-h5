@@ -170,7 +170,9 @@ let durationTimer: number | null = null
 
 // 设置语音识别回调（只设置一次）
 onMounted(async () => {
+  console.log('页面加载完成，设置语音识别回调')
   addDebugLog('页面加载完成，设置语音识别回调')
+  addDebugLog('>>> APP版本: v1.0.3 - 2024-11-15-18:40')
   addDebugLog(`语音识别服务类型: ${unifiedSpeechRecognition.getServiceType()}`)
   addDebugLog(`语音识别支持: ${unifiedSpeechRecognition.isSupported()}`)
   addDebugLog(`User Agent: ${navigator.userAgent}`)
