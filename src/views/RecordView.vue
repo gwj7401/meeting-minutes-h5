@@ -221,7 +221,16 @@ onMounted(async () => {
   })
 
   // 检测网络状态
-  await checkNetworkAndSpeechService()
+  try {
+    await checkNetworkAndSpeechService()
+  } catch (error) {
+    addDebugLog(`网络检测失败: ${error}`)
+    // 原生平台默认设置为可用
+    if (unifiedSpeechRecognition.getServiceType() === 'native') {
+      networkStatus.value = 'online'
+      addDebugLog('原生平台，默认设置为可用')
+    }
+  }
 
   // 监听网络状态变化
   window.addEventListener('online', checkNetworkAndSpeechService)
@@ -327,38 +336,56 @@ async function startRecording() {
     }, 1000)
     addDebugLog('计时器已启动')
 
-    // 检查网络状态并决定是否启动语音识别
-    if (networkStatus.value === 'offline') {
-      addDebugLog('网络离线，仅录音模式')
-      showToast({
-        message: '网络离线\n仅录音模式，无实时转写',
-        duration: 3000
-      })
-    } else if (networkStatus.value === 'google-blocked') {
-      addDebugLog('语音识别服务不可用，仅录音模式')
-      showToast({
-        message: '语音识别服务不可用\n仅录音模式，无实时转写',
-        duration: 3000
-      })
-    } else if (networkStatus.value === 'online') {
-      // 只在网络正常时启动语音识别
-      const lang = getDialectLang(selectedDialect.value)
-      console.log('启动语音识别，语言:', lang)
-      addDebugLog(`启动语音识别，语言: ${lang}`)
+    // 尝试启动语音识别
+    const lang = getDialectLang(selectedDialect.value)
+    console.log('准备启动语音识别，语言:', lang)
+    addDebugLog(`准备启动语音识别，语言: ${lang}`)
+    addDebugLog(`当前网络状态: ${networkStatus.value}`)
+    
+    // 原生平台强制尝试启动语音识别
+    if (unifiedSpeechRecognition.getServiceType() === 'native') {
+      addDebugLog('原生平台，强制启动语音识别')
       try {
-        unifiedSpeechRecognition.start(lang)
+        await unifiedSpeechRecognition.start(lang)
+        addDebugLog('语音识别启动成功')
         showToast('开始录音，请说话...')
-      } catch (error) {
-        console.warn('启动语音识别失败，但录音继续:', error)
-        addDebugLog(`语音识别启动失败: ${error}`)
+      } catch (error: any) {
+        console.error('启动语音识别失败:', error)
+        addDebugLog(`语音识别启动失败: ${error.message || error}`)
         showToast({
-          message: '语音识别启动失败\n录音正常，无实时转写',
-          duration: 3000
+          message: `语音识别启动失败\n${error.message || '未知错误'}\n录音正常`,
+          duration: 5000,
+          wordBreak: 'break-word'
         })
       }
     } else {
-      addDebugLog('网络状态检测中，仅录音模式')
-      showToast('开始录音（检测网络中）...')
+      // Web 平台根据网络状态决定
+      if (networkStatus.value === 'offline') {
+        addDebugLog('网络离线，仅录音模式')
+        showToast({
+          message: '网络离线\n仅录音模式，无实时转写',
+          duration: 3000
+        })
+      } else if (networkStatus.value === 'google-blocked') {
+        addDebugLog('语音识别服务不可用，仅录音模式')
+        showToast({
+          message: '语音识别服务不可用\n仅录音模式，无实时转写',
+          duration: 3000
+        })
+      } else {
+        addDebugLog('Web 平台，启动语音识别')
+        try {
+          unifiedSpeechRecognition.start(lang)
+          showToast('开始录音，请说话...')
+        } catch (error) {
+          console.warn('启动语音识别失败，但录音继续:', error)
+          addDebugLog(`语音识别启动失败: ${error}`)
+          showToast({
+            message: '语音识别启动失败\n录音正常，无实时转写',
+            duration: 3000
+          })
+        }
+      }
     }
   } catch (error: any) {
     console.error('启动录音失败:', error)
