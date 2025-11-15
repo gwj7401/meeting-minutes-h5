@@ -8,10 +8,74 @@ export class NativeSpeechRecognitionService {
   private errorCallback: ((error: string) => void) | null = null
   private startCallback: (() => void) | null = null
   private isNative = false
+  private listenersRegistered = false
 
   constructor() {
     this.isNative = Capacitor.isNativePlatform()
     console.log('语音识别服务初始化，原生平台:', this.isNative)
+    
+    // 在原生平台上立即注册事件监听器
+    if (this.isNative) {
+      this.registerListeners()
+    }
+  }
+
+  private registerListeners() {
+    if (this.listenersRegistered) {
+      return
+    }
+
+    console.log('注册语音识别事件监听器')
+
+    // 监听识别结果
+    SpeechRecognition.addListener('partialResults', (data: { matches: string[] }) => {
+      console.log('收到识别结果:', data)
+      if (this.resultCallback && data.matches && data.matches.length > 0) {
+        const text = data.matches[0]
+        
+        // 发送临时结果
+        this.resultCallback({
+          text: text,
+          isFinal: false,
+          timestamp: Date.now()
+        })
+        
+        // 延迟发送最终结果
+        setTimeout(() => {
+          if (this.resultCallback) {
+            this.resultCallback({
+              text: text,
+              isFinal: true,
+              timestamp: Date.now()
+            })
+          }
+        }, 500)
+      }
+    })
+
+    // 监听识别状态
+    SpeechRecognition.addListener('listeningState', (state: { status: 'started' | 'stopped' }) => {
+      console.log('识别状态变化:', state)
+      
+      if (state.status === 'stopped' && this.isRecognizing) {
+        // 自动重启识别（实现连续识别）
+        console.log('检测到识别停止，准备自动重启...')
+        setTimeout(() => {
+          if (this.isRecognizing) {
+            console.log('自动重启语音识别')
+            this.start('zh-CN').catch(error => {
+              console.error('重启识别失败:', error)
+              if (this.errorCallback) {
+                this.errorCallback('语音识别重启失败: ' + error.message)
+              }
+            })
+          }
+        }, 100)
+      }
+    })
+
+    this.listenersRegistered = true
+    console.log('事件监听器注册完成')
   }
 
   async checkPermissions(): Promise<boolean> {
@@ -93,50 +157,6 @@ export class NativeSpeechRecognitionService {
       if (this.startCallback) {
         this.startCallback()
       }
-
-      // 监听识别结果（临时结果和最终结果都通过 partialResults 事件）
-      SpeechRecognition.addListener('partialResults', (data: { matches: string[] }) => {
-        console.log('收到识别结果:', data)
-        if (this.resultCallback && data.matches && data.matches.length > 0) {
-          // 临时结果
-          this.resultCallback({
-            text: data.matches[0],
-            isFinal: false,
-            timestamp: Date.now()
-          })
-          
-          // 同时发送最终结果（因为 Android 语音识别每次都返回完整结果）
-          setTimeout(() => {
-            if (this.resultCallback && data.matches && data.matches.length > 0) {
-              this.resultCallback({
-                text: data.matches[0],
-                isFinal: true,
-                timestamp: Date.now()
-              })
-            }
-          }, 500)
-        }
-      })
-
-      // 监听识别状态
-      SpeechRecognition.addListener('listeningState', (state: { status: 'started' | 'stopped' }) => {
-        console.log('识别状态变化:', state)
-        
-        if (state.status === 'stopped' && this.isRecognizing) {
-          // 自动重启识别（实现连续识别）
-          console.log('自动重启语音识别...')
-          setTimeout(() => {
-            if (this.isRecognizing) {
-              this.start(lang).catch(error => {
-                console.error('重启识别失败:', error)
-                if (this.errorCallback) {
-                  this.errorCallback('语音识别重启失败: ' + error.message)
-                }
-              })
-            }
-          }, 100)
-        }
-      })
 
     } catch (error: any) {
       console.error('启动原生识别失败:', error)
