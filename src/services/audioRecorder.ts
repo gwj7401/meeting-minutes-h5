@@ -17,9 +17,41 @@ export class AudioRecorderService {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-        }
+          // 增加音频采样率和音量增益
+          sampleRate: 48000,
+          channelCount: 1,
+          volume: 1.0,
+          // 添加音频约束以提高录音质量
+          latency: 0,
+          // 禁用回声消除可能会提高音量，但可能引入回声
+          // echoCancellation: false,
+        } as MediaTrackConstraints
       })
       console.log('麦克风权限已获取')
+
+      // 尝试调整音频轨道的音量
+      const audioTrack = this.stream.getAudioTracks()[0]
+      if (audioTrack) {
+        const capabilities = audioTrack.getCapabilities()
+        console.log('音频轨道能力:', capabilities)
+
+        // 如果支持音量控制，设置为最大
+        try {
+          const constraints: any = {}
+          if (capabilities.volume) {
+            constraints.volume = capabilities.volume.max || 1.0
+          }
+          if (capabilities.sampleRate) {
+            constraints.sampleRate = capabilities.sampleRate.max || 48000
+          }
+          if (Object.keys(constraints).length > 0) {
+            await audioTrack.applyConstraints(constraints)
+            console.log('已应用音频约束:', constraints)
+          }
+        } catch (error) {
+          console.warn('应用音频约束失败:', error)
+        }
+      }
 
       this.mediaRecorder = new MediaRecorder(this.stream, {
         mimeType: 'audio/webm;codecs=opus'
