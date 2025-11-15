@@ -70,6 +70,19 @@
           停止录音
         </van-button>
       </div>
+
+      <!-- 调试日志面板 -->
+      <div v-if="debugLogs.length > 0" class="debug-panel">
+        <div class="debug-header" @click="showDebugLogs = !showDebugLogs">
+          <span>调试日志 ({{ debugLogs.length }})</span>
+          <van-icon :name="showDebugLogs ? 'arrow-up' : 'arrow-down'" />
+        </div>
+        <div v-show="showDebugLogs" class="debug-content">
+          <div v-for="(log, index) in debugLogs" :key="index" class="debug-log">
+            {{ log }}
+          </div>
+        </div>
+      </div>
     </div>
 
     <van-popup v-model:show="showDialectPicker" position="bottom">
@@ -86,7 +99,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMeetingStore } from '@/stores/meeting'
-import { speechRecognition } from '@/services/speechRecognition'
+import { unifiedSpeechRecognition } from '@/services/speechRecognitionUnified'
 import { audioRecorder } from '@/services/audioRecorder'
 import { DIALECTS, getDialectLang, getDialectName } from '@/utils/dialects'
 import { showToast, showConfirmDialog } from 'vant'
@@ -100,6 +113,7 @@ const recognizedText = ref('')
 const interimText = ref('')
 const selectedDialect = ref('mandarin')
 const debugLogs = ref<string[]>([])
+const showDebugLogs = ref(false)
 const networkStatus = ref<'checking' | 'online' | 'offline' | 'google-blocked'>('checking')
 const isSpeaking = ref(false) // 是否正在说话
 
@@ -126,74 +140,26 @@ async function checkNetworkAndSpeechService() {
   }
 
   // 2. 检查是否支持语音识别
-  if (!speechRecognition.isSupported()) {
-    addDebugLog('浏览器不支持语音识别')
+  if (!unifiedSpeechRecognition.isSupported()) {
+    addDebugLog('当前平台不支持语音识别')
     networkStatus.value = 'google-blocked'
     return
   }
 
-  // 3. 尝试测试语音识别服务连接
+  // 3. 检查语音识别服务可用性
   try {
-    addDebugLog('测试语音识别服务连接...')
-
-    // 创建一个临时的语音识别实例进行测试
-    const testRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)()
-    testRecognition.lang = 'zh-CN'
-    testRecognition.continuous = false
-    testRecognition.interimResults = false
-
-    const testPromise = new Promise<boolean>((resolve) => {
-      let resolved = false
-
-      testRecognition.onstart = () => {
-        addDebugLog('语音识别服务连接成功')
-        if (!resolved) {
-          resolved = true
-          testRecognition.stop()
-          resolve(true)
-        }
-      }
-
-      testRecognition.onerror = (event: any) => {
-        addDebugLog(`语音识别服务测试失败: ${event.error}`)
-        if (!resolved) {
-          resolved = true
-          resolve(event.error !== 'network')
-        }
-      }
-
-      // 5秒超时
-      setTimeout(() => {
-        if (!resolved) {
-          resolved = true
-          addDebugLog('语音识别服务测试超时')
-          testRecognition.stop()
-          resolve(false)
-        }
-      }, 5000)
-
-      try {
-        testRecognition.start()
-      } catch (error) {
-        addDebugLog(`启动测试识别失败: ${error}`)
-        if (!resolved) {
-          resolved = true
-          resolve(false)
-        }
-      }
-    })
-
-    const isAvailable = await testPromise
-
-    if (isAvailable) {
+    addDebugLog('检查语音识别服务可用性...')
+    const result = await unifiedSpeechRecognition.checkAvailability()
+    
+    if (result.available) {
       networkStatus.value = 'online'
       addDebugLog('语音识别服务可用')
     } else {
       networkStatus.value = 'google-blocked'
-      addDebugLog('语音识别服务不可用（可能被阻止）')
+      addDebugLog(`语音识别服务不可用: ${result.reason}`)
     }
   } catch (error) {
-    addDebugLog(`网络检测异常: ${error}`)
+    addDebugLog(`检测异常: ${error}`)
     networkStatus.value = 'google-blocked'
   }
 }
@@ -205,10 +171,11 @@ let durationTimer: number | null = null
 // 设置语音识别回调（只设置一次）
 onMounted(async () => {
   addDebugLog('页面加载完成，设置语音识别回调')
-  addDebugLog(`浏览器支持语音识别: ${speechRecognition.isSupported()}`)
+  addDebugLog(`语音识别服务类型: ${unifiedSpeechRecognition.getServiceType()}`)
+  addDebugLog(`语音识别支持: ${unifiedSpeechRecognition.isSupported()}`)
   addDebugLog(`User Agent: ${navigator.userAgent}`)
 
-  speechRecognition.onResult((result) => {
+  unifiedSpeechRecognition.onResult((result) => {
     addDebugLog(`收到识别结果: "${result.text}" (最终: ${result.isFinal})`)
 
     if (result.isFinal) {
@@ -225,7 +192,7 @@ onMounted(async () => {
     }
   })
 
-  speechRecognition.onError((error) => {
+  unifiedSpeechRecognition.onError((error) => {
     addDebugLog(`识别错误: ${error}`)
 
     // 如果是网络错误，更新网络状态
@@ -242,13 +209,13 @@ onMounted(async () => {
   })
 
   // 监听声音开始
-  speechRecognition.onSoundStart(() => {
+  unifiedSpeechRecognition.onSoundStart(() => {
     addDebugLog('检测到声音开始')
     isSpeaking.value = true
   })
 
   // 监听声音结束
-  speechRecognition.onSoundEnd(() => {
+  unifiedSpeechRecognition.onSoundEnd(() => {
     addDebugLog('检测到声音结束')
     isSpeaking.value = false
   })
@@ -325,27 +292,11 @@ function onDialectConfirm({ selectedOptions }: any) {
 async function startRecording() {
   try {
     console.log('开始录音...')
+    addDebugLog('用户点击开始录音')
 
-    if (!speechRecognition.isSupported()) {
+    if (!unifiedSpeechRecognition.isSupported()) {
       showToast('浏览器不支持语音识别，请使用 Chrome 或 Edge')
       return
-    }
-
-    // 检查网络状态并给出提示
-    if (networkStatus.value === 'offline') {
-      const confirmed = await showConfirmDialog({
-        title: '网络离线',
-        message: '当前网络离线，无法使用实时转写功能。\n\n录音功能正常，您可以继续录音，稍后手动输入文字。\n\n是否继续？',
-      }).catch(() => false)
-
-      if (!confirmed) return
-    } else if (networkStatus.value === 'google-blocked') {
-      const confirmed = await showConfirmDialog({
-        title: '语音识别服务不可用',
-        message: '无法连接到语音识别服务（可能需要特殊网络环境）。\n\n录音功能正常，您可以继续录音，稍后手动输入文字。\n\n是否继续？',
-      }).catch(() => false)
-
-      if (!confirmed) return
     }
 
     // 重置文本
@@ -355,42 +306,78 @@ async function startRecording() {
     // 创建会议记录
     await meetingStore.createMeeting(selectedDialect.value)
     console.log('会议记录已创建')
+    addDebugLog('会议记录已创建')
 
-    // 启动录音
-    await audioRecorder.start()
-    console.log('录音已启动')
-
-    // 只在网络正常时启动语音识别
-    if (networkStatus.value === 'online') {
-      const lang = getDialectLang(selectedDialect.value)
-      console.log('启动语音识别，语言:', lang)
-      try {
-        speechRecognition.start(lang)
-      } catch (error) {
-        console.warn('启动语音识别失败，但录音继续:', error)
-        showToast('语音识别启动失败，但录音正常')
-      }
-    } else {
-      console.log('网络状态不佳，跳过语音识别')
+    // 先启动录音（这会触发麦克风权限请求）
+    addDebugLog('正在请求麦克风权限...')
+    try {
+      await audioRecorder.start()
+      console.log('录音已启动')
+      addDebugLog('麦克风权限已授予，录音已启动')
+    } catch (error: any) {
+      addDebugLog(`麦克风权限被拒绝: ${error.message}`)
+      throw error // 重新抛出错误，让外层 catch 处理
     }
 
-    // 更新状态
+    // 录音启动成功后，更新状态并启动计时器
     isRecording.value = true
     duration.value = 0
-
-    // 启动计时器
     durationTimer = window.setInterval(() => {
       duration.value++
     }, 1000)
+    addDebugLog('计时器已启动')
 
-    const message = networkStatus.value === 'online'
-      ? '开始录音，请说话...'
-      : '开始录音（无实时转写），请说话...'
-    showToast(message)
+    // 检查网络状态并决定是否启动语音识别
+    if (networkStatus.value === 'offline') {
+      addDebugLog('网络离线，仅录音模式')
+      showToast({
+        message: '网络离线\n仅录音模式，无实时转写',
+        duration: 3000
+      })
+    } else if (networkStatus.value === 'google-blocked') {
+      addDebugLog('语音识别服务不可用，仅录音模式')
+      showToast({
+        message: '语音识别服务不可用\n仅录音模式，无实时转写',
+        duration: 3000
+      })
+    } else if (networkStatus.value === 'online') {
+      // 只在网络正常时启动语音识别
+      const lang = getDialectLang(selectedDialect.value)
+      console.log('启动语音识别，语言:', lang)
+      addDebugLog(`启动语音识别，语言: ${lang}`)
+      try {
+        unifiedSpeechRecognition.start(lang)
+        showToast('开始录音，请说话...')
+      } catch (error) {
+        console.warn('启动语音识别失败，但录音继续:', error)
+        addDebugLog(`语音识别启动失败: ${error}`)
+        showToast({
+          message: '语音识别启动失败\n录音正常，无实时转写',
+          duration: 3000
+        })
+      }
+    } else {
+      addDebugLog('网络状态检测中，仅录音模式')
+      showToast('开始录音（检测网络中）...')
+    }
   } catch (error: any) {
     console.error('启动录音失败:', error)
-    showToast(error.message || '启动录音失败')
+    addDebugLog(`启动录音失败: ${error.message}`)
+    
+    // 清理状态
     isRecording.value = false
+    if (durationTimer) {
+      clearInterval(durationTimer)
+      durationTimer = null
+    }
+    
+    // 显示详细错误信息
+    const errorMsg = error.message || '启动录音失败'
+    showToast({
+      message: errorMsg,
+      duration: 5000,
+      wordBreak: 'break-word'
+    })
   }
 }
 
@@ -402,7 +389,7 @@ async function stopRecording() {
     isRecording.value = false
 
     // 停止语音识别
-    speechRecognition.stop()
+    unifiedSpeechRecognition.stop()
     console.log('语音识别已停止')
 
     // 停止录音
@@ -445,7 +432,7 @@ async function handleBack() {
         message: '正在录音中，退出将丢失当前录音，确定要退出吗？',
       })
       
-      speechRecognition.stop()
+      unifiedSpeechRecognition.stop()
       await audioRecorder.stop()
       
       if (durationTimer) {
@@ -466,7 +453,7 @@ onUnmounted(() => {
     clearInterval(durationTimer)
   }
   if (isRecording.value) {
-    speechRecognition.stop()
+    unifiedSpeechRecognition.stop()
   }
 })
 </script>
@@ -628,6 +615,40 @@ onUnmounted(() => {
 .controls {
   padding: 20px;
   background: white;
+}
+
+.debug-panel {
+  background: white;
+  border-top: 1px solid #eee;
+  max-height: 200px;
+  overflow: hidden;
+}
+
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: #f7f8fa;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #646566;
+}
+
+.debug-content {
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 10px 20px;
+}
+
+.debug-log {
+  font-size: 12px;
+  font-family: monospace;
+  color: #666;
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+  word-break: break-all;
 }
 </style>
 

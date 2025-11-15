@@ -13,6 +13,7 @@
     "android:build": "cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
+    "@capacitor-community/speech-recognition": "^6.0.1",
     "@vueuse/core": "^10.9.0",
     "localforage": "^1.10.0",
     "pinia": "^2.1.7",
@@ -33,4 +34,3 @@
     "vue-tsc": "^2.0.6"
   }
 }
-
