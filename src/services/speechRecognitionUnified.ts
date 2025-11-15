@@ -57,6 +57,13 @@ class UnifiedSpeechRecognitionService {
     }
   }
 
+  onDebugLog(callback: (msg: string) => void) {
+    // 只有原生服务支持调试日志回调
+    if ('onDebugLog' in this.service) {
+      (this.service as any).onDebugLog(callback)
+    }
+  }
+
   isSupported(): boolean {
     return this.service.isSupported()
   }

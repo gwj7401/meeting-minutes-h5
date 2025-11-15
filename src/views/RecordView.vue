@@ -177,6 +177,11 @@ onMounted(async () => {
   addDebugLog(`语音识别支持: ${unifiedSpeechRecognition.isSupported()}`)
   addDebugLog(`User Agent: ${navigator.userAgent}`)
 
+  // 设置调试日志回调（如果是原生平台）
+  unifiedSpeechRecognition.onDebugLog((msg: string) => {
+    addDebugLog(msg)
+  })
+
   unifiedSpeechRecognition.onResult((result) => {
     addDebugLog(`收到识别结果: "${result.text}" (最终: ${result.isFinal})`)
 

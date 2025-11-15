@@ -5,15 +5,18 @@ import type { SpeechResult } from '@/types'
 // 全局标记，确保监听器只注册一次
 let listenersRegistered = false
 let resultCallback: ((result: SpeechResult) => void) | null = null
+let debugLogCallback: ((msg: string) => void) | null = null
 
 // 立即注册全局监听器
 function registerGlobalListeners() {
   if (listenersRegistered) {
     console.log('监听器已注册，跳过')
+    if (debugLogCallback) debugLogCallback('监听器已注册，跳过')
     return
   }
 
   console.log('>>> 开始注册全局语音识别监听器')
+  if (debugLogCallback) debugLogCallback('>>> 开始注册全局语音识别监听器')
 
   try {
     // 监听识别结果
@@ -42,8 +45,10 @@ function registerGlobalListeners() {
       }
     }).then(() => {
       console.log('>>> partialResults 监听器注册成功')
+      if (debugLogCallback) debugLogCallback('>>> partialResults 监听器注册成功')
     }).catch(err => {
       console.error('>>> partialResults 监听器注册失败:', err)
+      if (debugLogCallback) debugLogCallback('>>> partialResults 监听器注册失败: ' + err)
     })
 
     // 监听识别状态
@@ -51,12 +56,15 @@ function registerGlobalListeners() {
       console.log('>>> 识别状态变化:', state)
     }).then(() => {
       console.log('>>> listeningState 监听器注册成功')
+      if (debugLogCallback) debugLogCallback('>>> listeningState 监听器注册成功')
     }).catch(err => {
       console.error('>>> listeningState 监听器注册失败:', err)
+      if (debugLogCallback) debugLogCallback('>>> listeningState 监听器注册失败: ' + err)
     })
 
     listenersRegistered = true
     console.log('>>> 全局监听器注册完成')
+    if (debugLogCallback) debugLogCallback('>>> 全局监听器注册完成')
   } catch (error) {
     console.error('>>> 注册监听器异常:', error)
   }
@@ -123,6 +131,7 @@ export class NativeSpeechRecognitionService {
 
     // 确保监听器已注册
     console.log('确保监听器已注册...')
+    if (debugLogCallback) debugLogCallback('确保监听器已注册...')
     registerGlobalListeners()
 
     console.log('启动原生语音识别，语言:', lang)
@@ -181,6 +190,11 @@ export class NativeSpeechRecognitionService {
   onResult(callback: (result: SpeechResult) => void) {
     resultCallback = callback
     console.log('设置结果回调函数')
+  }
+
+  onDebugLog(callback: (msg: string) => void) {
+    debugLogCallback = callback
+    console.log('设置调试日志回调函数')
   }
 
   onError(_callback: (error: string) => void) {
