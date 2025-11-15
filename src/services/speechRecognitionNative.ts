@@ -2,39 +2,28 @@ import { SpeechRecognition } from '@capacitor-community/speech-recognition'
 import { Capacitor } from '@capacitor/core'
 import type { SpeechResult } from '@/types'
 
-export class NativeSpeechRecognitionService {
-  private isRecognizing = false
-  private resultCallback: ((result: SpeechResult) => void) | null = null
-  private errorCallback: ((error: string) => void) | null = null
-  private startCallback: (() => void) | null = null
-  private isNative = false
-  private listenersRegistered = false
+// 全局标记，确保监听器只注册一次
+let listenersRegistered = false
+let resultCallback: ((result: SpeechResult) => void) | null = null
 
-  constructor() {
-    this.isNative = Capacitor.isNativePlatform()
-    console.log('语音识别服务初始化，原生平台:', this.isNative)
-    
-    // 在原生平台上立即注册事件监听器
-    if (this.isNative) {
-      this.registerListeners()
-    }
+// 立即注册全局监听器
+function registerGlobalListeners() {
+  if (listenersRegistered) {
+    console.log('监听器已注册，跳过')
+    return
   }
 
-  private registerListeners() {
-    if (this.listenersRegistered) {
-      return
-    }
+  console.log('>>> 开始注册全局语音识别监听器')
 
-    console.log('注册语音识别事件监听器')
-
+  try {
     // 监听识别结果
     SpeechRecognition.addListener('partialResults', (data: { matches: string[] }) => {
-      console.log('收到识别结果:', data)
-      if (this.resultCallback && data.matches && data.matches.length > 0) {
+      console.log('>>> 收到识别结果:', data)
+      if (resultCallback && data.matches && data.matches.length > 0) {
         const text = data.matches[0]
         
         // 发送临时结果
-        this.resultCallback({
+        resultCallback({
           text: text,
           isFinal: false,
           timestamp: Date.now()
@@ -42,8 +31,8 @@ export class NativeSpeechRecognitionService {
         
         // 延迟发送最终结果
         setTimeout(() => {
-          if (this.resultCallback) {
-            this.resultCallback({
+          if (resultCallback) {
+            resultCallback({
               text: text,
               isFinal: true,
               timestamp: Date.now()
@@ -51,31 +40,37 @@ export class NativeSpeechRecognitionService {
           }
         }, 500)
       }
+    }).then(() => {
+      console.log('>>> partialResults 监听器注册成功')
+    }).catch(err => {
+      console.error('>>> partialResults 监听器注册失败:', err)
     })
 
     // 监听识别状态
     SpeechRecognition.addListener('listeningState', (state: { status: 'started' | 'stopped' }) => {
-      console.log('识别状态变化:', state)
-      
-      if (state.status === 'stopped' && this.isRecognizing) {
-        // 自动重启识别（实现连续识别）
-        console.log('检测到识别停止，准备自动重启...')
-        setTimeout(() => {
-          if (this.isRecognizing) {
-            console.log('自动重启语音识别')
-            this.start('zh-CN').catch(error => {
-              console.error('重启识别失败:', error)
-              if (this.errorCallback) {
-                this.errorCallback('语音识别重启失败: ' + error.message)
-              }
-            })
-          }
-        }, 100)
-      }
+      console.log('>>> 识别状态变化:', state)
+    }).then(() => {
+      console.log('>>> listeningState 监听器注册成功')
+    }).catch(err => {
+      console.error('>>> listeningState 监听器注册失败:', err)
     })
 
-    this.listenersRegistered = true
-    console.log('事件监听器注册完成')
+    listenersRegistered = true
+    console.log('>>> 全局监听器注册完成')
+  } catch (error) {
+    console.error('>>> 注册监听器异常:', error)
+  }
+}
+
+export class NativeSpeechRecognitionService {
+  private isRecognizing = false
+  private isNative = false
+
+  constructor() {
+    this.isNative = Capacitor.isNativePlatform()
+    console.log('=== 原生语音识别服务初始化 ===')
+    console.log('原生平台:', this.isNative)
+    console.log('Platform:', Capacitor.getPlatform())
   }
 
   async checkPermissions(): Promise<boolean> {
@@ -126,6 +121,10 @@ export class NativeSpeechRecognitionService {
       throw new Error('原生语音识别仅在移动设备上可用')
     }
 
+    // 确保监听器已注册
+    console.log('确保监听器已注册...')
+    registerGlobalListeners()
+
     console.log('启动原生语音识别，语言:', lang)
 
     // 检查权限
@@ -154,10 +153,6 @@ export class NativeSpeechRecognitionService {
 
       console.log('原生语音识别已启动')
 
-      if (this.startCallback) {
-        this.startCallback()
-      }
-
     } catch (error: any) {
       console.error('启动原生识别失败:', error)
       this.isRecognizing = false
@@ -184,15 +179,18 @@ export class NativeSpeechRecognitionService {
   }
 
   onResult(callback: (result: SpeechResult) => void) {
-    this.resultCallback = callback
+    resultCallback = callback
+    console.log('设置结果回调函数')
   }
 
-  onError(callback: (error: string) => void) {
-    this.errorCallback = callback
+  onError(_callback: (error: string) => void) {
+    // 原生平台暂不使用错误回调
+    console.log('设置错误回调函数（原生平台暂不使用）')
   }
 
-  onStart(callback: () => void) {
-    this.startCallback = callback
+  onStart(_callback: () => void) {
+    // 原生识别不需要 onStart 回调
+    console.log('onStart 回调（原生平台忽略）')
   }
 
   isSupported(): boolean {
