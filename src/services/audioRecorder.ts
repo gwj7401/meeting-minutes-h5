@@ -32,7 +32,7 @@ export class AudioRecorderService {
       // 尝试调整音频轨道的音量
       const audioTrack = this.stream.getAudioTracks()[0]
       if (audioTrack) {
-        const capabilities = audioTrack.getCapabilities()
+        const capabilities: any = audioTrack.getCapabilities()
         console.log('音频轨道能力:', capabilities)
 
         // 如果支持音量控制，设置为最大

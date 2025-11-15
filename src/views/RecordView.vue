@@ -100,7 +100,6 @@ const recognizedText = ref('')
 const interimText = ref('')
 const selectedDialect = ref('mandarin')
 const debugLogs = ref<string[]>([])
-const showDebug = ref(false)
 const networkStatus = ref<'checking' | 'online' | 'offline' | 'google-blocked'>('checking')
 const isSpeaking = ref(false) // 是否正在说话
 

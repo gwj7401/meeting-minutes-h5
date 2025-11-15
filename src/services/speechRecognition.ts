@@ -6,7 +6,6 @@ export class SpeechRecognitionService {
   private resultCallback: ((result: SpeechResult) => void) | null = null
   private errorCallback: ((error: string) => void) | null = null
   private startCallback: (() => void) | null = null
-  private endCallback: (() => void) | null = null
   private soundStartCallback: (() => void) | null = null
   private soundEndCallback: (() => void) | null = null
   private networkErrorCount = 0
@@ -269,10 +268,6 @@ export class SpeechRecognitionService {
 
   onStart(callback: () => void) {
     this.startCallback = callback
-  }
-
-  onEnd(callback: () => void) {
-    this.endCallback = callback
   }
 
   onSoundStart(callback: () => void) {
